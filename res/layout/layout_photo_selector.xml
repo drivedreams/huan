@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/change_board_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <!-- <Button></Button> -->
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="365dp"
+        android:layout_gravity="center_vertical" >
+
+        <LinearLayout
+            android:id="@+id/change_board_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+	<!-- TBW -->
+            <!-- <ImageView
+                android:id="@+id/tmp_image_shower"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/tmp_image_shower" /> -->
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/change_board_tail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/selector_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_btn_text" />
+
+        <EditText
+            android:id="@+id/chatter_box"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="1dp"
+            android:layout_weight="6"
+            android:hint="@string/chatter_box_hint" />
+
+        <Button
+            android:id="@+id/selector_extra_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="@string/selector_extra_btn_text" />
+    </LinearLayout>
+
+</LinearLayout>
