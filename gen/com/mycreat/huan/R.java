@@ -24,18 +24,20 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f080007;
+        public static final int action_settings=0x7f080008;
         public static final int change_board_body=0x7f080001;
         public static final int change_board_header=0x7f080000;
         public static final int change_board_tail=0x7f080002;
         public static final int chatter_box=0x7f080004;
         public static final int go_to_selector=0x7f080006;
+        public static final int item_image=0x7f080007;
         public static final int selector_btn=0x7f080003;
         public static final int selector_extra_btn=0x7f080005;
     }
     public static final class layout {
         public static final int layout_photo_selector=0x7f030000;
         public static final int layout_welcome=0x7f030001;
+        public static final int message_item_tpl=0x7f030002;
     }
     public static final class menu {
         public static final int welcome=0x7f070000;
@@ -46,10 +48,11 @@ public final class R {
         public static final int chatter_box_hint=0x7f050006;
         public static final int hello_world=0x7f050002;
         public static final int logo_title=0x7f050003;
+        public static final int message_item_img_alt=0x7f050007;
         public static final int select_btn_text=0x7f050004;
         public static final int selector_extra_btn_text=0x7f050005;
-        public static final int tmp_go_btn=0x7f050008;
-        public static final int tmp_image_shower=0x7f050007;
+        public static final int tmp_go_btn=0x7f050009;
+        public static final int tmp_image_shower=0x7f050008;
     }
     public static final class style {
         /** 

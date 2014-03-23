@@ -5,13 +5,14 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="11"
         android:targetSdkVersion="19" />
 
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
-
+   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+   
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
