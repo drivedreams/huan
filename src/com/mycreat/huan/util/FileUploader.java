@@ -10,8 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.http.HttpResponse;
-
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -77,7 +75,7 @@ public class FileUploader {
 				con.setRequestMethod("POST");
 				con.setRequestProperty("Connection", "Keep-Alive");
 				con.setRequestProperty("Content-Type",
-						"image/jpeg;boundary=" + boundary);
+						"multipart/form-data;boundary=" + boundary);
 				// con.setRequestProperty("file", "filename");
 				Log.w("huan", "Begin to write file to the server ");
 				OutputStream serverOutputStream = con.getOutputStream();
