@@ -7,11 +7,8 @@ import com.mycreat.huan.util.BitmapManager;
 import com.mycreat.huan.util.DeviceInformationManager;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,13 +36,9 @@ public class PathsAdapter extends ArrayAdapter<String> {
 		ItemHolder itemHolder;
 
 		String itemPath = getItem(position);
-		Log.w("Pic", "begin to getItem: " + position);
 		if (row == null) {
 			itemHolder = new ItemHolder();
 			itemHolder.position = position;
-			Log.w("Pic", "Begin to get row ..." + context);
-			Log.w("Pic", "Begin to get row ..." + resourceId);
-			Log.w("Pic", "Begin to get row ..." + parent);
 			inflater = (LayoutInflater) context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			row = (FrameLayout) inflater.inflate(resourceId, parent, false);

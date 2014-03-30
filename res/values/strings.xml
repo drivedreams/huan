@@ -9,6 +9,14 @@
 	<string name="selector_extra_btn_text">Add</string>
 	<string name="chatter_box_hint">Input here</string>
 	<string name="message_item_img_alt">Message item img</string>
+	
+	
+	<!-- Alert message when something wrong -->
+	<string name="error_message_selecting_photo">Failed to choose pohoto</string>
+	
+	<!-- Should be change or remove later -->	
 	<string name="tmp_image_shower">Image shower</string>
 	<string name="tmp_go_btn">Go to selector</string>
+	
+	
 </resources>

@@ -3,8 +3,10 @@ package com.mycreat.huan;
 import java.util.ArrayList;
 
 import com.mycreat.huan.adapters.PathsAdapter;
+import com.mycreat.huan.util.FileUploader;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -15,15 +17,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v7.app.ActionBarActivity;
+import android.provider.MediaStore.Images.Thumbnails;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -38,13 +36,12 @@ public class PhotoSelector extends Activity {
 
 	public static final String KEY_PHOTO_PATH = "photo_path";
 
+	public String serverUrl = "http://mcapi.sinaapp.com/v1/file/upload";
 	// 获取组件
 	ListView imageContainer;
 	// 获取图片路径
-	private String picPath;
 
 	private Intent lastIntent;
-	private Uri photoUri;
 
 	PathsAdapter pathsAdapter;
 
@@ -67,13 +64,11 @@ public class PhotoSelector extends Activity {
 
 		Button photoSelectExtraBtn = (Button) findViewById(R.id.selector_extra_btn);
 		photoSelectExtraBtn.setOnClickListener(new ButonClickListener());
-
+		
 		pathsAdapter = new PathsAdapter(this, R.layout.message_item_tpl,
 				new ArrayList<String>());
-		System.out.println("Inialize adapter.");
 		imageContainer = (ListView) findViewById(R.id.change_board_body);
 		imageContainer.setAdapter(pathsAdapter);
-		System.out.println("Adapter has been setted.");
 	}
 
 	/**
@@ -96,17 +91,19 @@ public class PhotoSelector extends Activity {
 	}
 
 	/**
-	 * 拍照获取图片
+	 * Get photo through taking photo.
 	 */
 	private void takePhoto() {
-		// 执行拍照前，应该先判断SD卡是否存在
+		//Check is there SD card.
 		String SDState = Environment.getExternalStorageState();
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);// "android.media.action.IMAGE_CAPTURE"
 		/***
-		 * 需要说明一下，以下操作使用照相机拍照，拍照后的图片会存放在相册中的 这里使用的这种方式有一个好处就是获取的图片是拍照后的原图
-		 * 如果不实用ContentValues存放照片路径的话，拍照后获取的图片为缩略图不清晰
+		 * You had better to save photo into gallery for getting higher quality photo rather than thumbnail.
 		 */
 		ContentValues values = new ContentValues();
+
+		Uri photoUri;
+
 		if (SDState.equals(Environment.MEDIA_MOUNTED)) {
 			photoUri = this.getContentResolver().insert(
 					MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
@@ -135,60 +132,126 @@ public class PhotoSelector extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
-			doPhoto(requestCode, data);
+			sendMessage(getPhotoPath(requestCode, data));
 		}
 
 	}
 
+
 	/**
-	 * 选择图片后，获取图片的路径
 	 * 
-	 * @param requestCode
-	 * @param data
+	 * Get the path of the photo in file storage system.
+	 * 
+	 * @param photoUri
+	 * @return
 	 */
-	private void doPhoto(int requestCode, Intent data) {
-		if (requestCode == REQUEST_IMAGE_GALLERY) // 从相册取图片，有些手机有异常情况，请注意
-		{
+	private String getPhotoPath(int requestCode, Intent data) {
+		if (requestCode == REQUEST_IMAGE_GALLERY) {
 			if (data == null) {
-				Toast.makeText(this, "选择图片文件出错", Toast.LENGTH_LONG).show();
-				return;
-			}
-			photoUri = data.getData();
-			Log.i("Pic", photoUri.getPath());
-			if (photoUri == null) {
-				Toast.makeText(this, "选择图片文件出错", Toast.LENGTH_LONG).show();
-				return;
+				alert("Data is null");
+				return null;
 			}
 		}
+		String picPath = null;
+		Uri photoUri = data.getData();
+		
+		if (photoUri == null) {
+			alert("photoUri is null");
+			return null;
+		}
+
 		String[] pojo = { MediaStore.Images.Media.DATA };
 		Cursor cursor = this.getContentResolver().query(photoUri, pojo, null,
 				null, null);
 		if (cursor != null) {
+
 			int columnIndex = cursor.getColumnIndexOrThrow(pojo[0]);
 			cursor.moveToFirst();
 			picPath = cursor.getString(columnIndex);
 			cursor.close();
+		}else{
+			alert("cursor is null");
 		}
-		if (picPath != null
-				&& (picPath.endsWith(".png") || picPath.endsWith(".PNG")
-						|| picPath.endsWith(".jpg") || picPath.endsWith(".JPG"))) {
+		if (isPhotoPath(picPath)) {
 			lastIntent.putExtra(KEY_PHOTO_PATH, picPath);
 			setResult(Activity.RESULT_OK, lastIntent);
-			Log.w("Pic", "Begin to add image with specified path");
-			addFromMessage(picPath);
+
 		} else {
-			Toast.makeText(this, "选择图片文件不正确", Toast.LENGTH_LONG).show();
+			alert("Not a picPath");
 		}
+		return picPath;
+	}
+	
+	private String getThumbnail(int requestCode, Intent data){
+		if (requestCode == REQUEST_IMAGE_GALLERY) {
+			Log.w("Pic", "requestCode :" + requestCode);
+			if (data == null) {
+				alert(getString(R.string.error_message_selecting_photo));
+				return null;
+			}
+		}
+	
+		String picPath = null;
+		Uri photoUri = data.getData();
+		Log.w("Pic", "photoUri path :" + photoUri.getPath());
+
+		String[] pojo = { Thumbnails._ID, Thumbnails.IMAGE_ID,  
+                Thumbnails.DATA};
+		
+		ContentResolver cr = getContentResolver(); ;  
+		//获取指定Uri的一条数据
+		Cursor cursor = cr.query(Thumbnails.EXTERNAL_CONTENT_URI, pojo, null,
+				null, null);
+		String colums [] = cursor.getColumnNames();
+		for (String string : colums) {
+			Log.w("Pic", "cursor: " + string );
+		}
+	
+		if (cursor != null) {
+			//获取IMAGE_ID在第几列
+			int column = cursor.getColumnIndex(Thumbnails._ID);
+			Log.w("Pic", "column = " + column);
+			//获取ImageId
+			int iamgeID = cursor.getInt(column);
+			//关闭cursor
+			cursor.close();
+			
+			Cursor thumbnailsCursor	= Thumbnails.queryMiniThumbnail(getContentResolver(), iamgeID, Thumbnails.MINI_KIND, null);
+			picPath = thumbnailsCursor.getString(thumbnailsCursor.getColumnIndex(Thumbnails.THUMB_DATA));
+			
+		}
+		if (isPhotoPath(picPath)) {
+			lastIntent.putExtra(KEY_PHOTO_PATH, picPath);
+			setResult(Activity.RESULT_OK, lastIntent);
+
+		} else {
+			alert(getString(R.string.error_message_selecting_photo));
+		}
+		return picPath;
+	}
+	//
+	private boolean isPhotoPath(String picPath) {
+
+		return picPath != null
+				&& (picPath.endsWith(".png") || picPath.endsWith(".PNG")
+						|| picPath.endsWith(".jpg") || picPath.endsWith(".JPG")
+						|| picPath.endsWith(".bmp") || picPath.endsWith(".BMP")
+						|| picPath.endsWith(".jpeg") || picPath.endsWith(".JPEG")
+						|| picPath.endsWith(".gif") || picPath.endsWith(".GIF"));
+
 	}
 
-	private void addFromMessage(String picPath) {
-		Log.w("Pic",
-				"Begin to insert image to index " + pathsAdapter.getCount());
+	private void sendMessage(String picPath) {
+		Log.w("Pic", "picPath: " + picPath);
+		Log.w("Pic", "Begin to upload pic");
+		FileUploader.upload(serverUrl, picPath);
+		Log.w("Pic", "Pic is uploaded!");
 		pathsAdapter.add(picPath);
-		// pathsAdapter.insert(picPath, pathsAdapter.getCount());
+		//pathsAdapter.notify();
+	}
 
-		// pathsAdapter.notify();
-		Log.w("Pic", "An image has been inserted.");
-		// pathsAdapter.notify();
+	private void alert(String message) {
+		Log.w("Pic", message);
+		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 	}
 }
