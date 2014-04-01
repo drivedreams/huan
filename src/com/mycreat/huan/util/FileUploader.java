@@ -46,24 +46,15 @@ public class FileUploader {
 			HttpURLConnection con = null;
 			URL url;
 			DataOutputStream outputStream = null;
-			long length = 0;
-			int progress;
-			int bytesRead, bytesAvailable, bufferSize;
+			int bytesAvailable, bufferSize;
 			byte[] buffer;
 			int maxBufferSize = 256 * 1024;// 256KB
-			Log.w("huan", "Find file in given path: " + filePath);
-			File uploadFile = new File(filePath);
-			Log.w("huan", "The file is found");
-			long totalSize = uploadFile.length(); // Get size of file, bytes
-			Log.w("huan", "The size of file is: " + totalSize);
 
 			try {
 				FileInputStream fileInputStream = new FileInputStream(new File(
 						filePath));
 				url = new URL(uploadUrl);
-				Log.w("huan", "Try to connect to the server: " + url.getPath());
 				con = (HttpURLConnection) url.openConnection();
-				Log.w("huan", "Sucessfully connect to the server.");
 				// Set size of every block for post
 				con.setChunkedStreamingMode(256 * 1024);
 
@@ -76,47 +67,34 @@ public class FileUploader {
 				con.setRequestProperty("Connection", "Keep-Alive");
 				con.setRequestProperty("Content-Type",
 						"multipart/form-data;boundary=" + boundary);
-				// con.setRequestProperty("file", "filename");
 				Log.w("huan", "Begin to write file to the server ");
 				OutputStream serverOutputStream = con.getOutputStream();
 				Log.w("huan", "Begin to write file to the server ...");
 				outputStream = new DataOutputStream(serverOutputStream);
 				Log.w("huan", "OutputStream has got");
 				outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+				
+				//Set the content of the form to be committed
 				outputStream
 						.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\""
 								+ filePath.substring(filePath.lastIndexOf("/") + 1)
 								+ "\"" + lineEnd);
 				outputStream.writeBytes(lineEnd);
-				Log.w("huan", "The header has been written to the server ");
+
+				//Gets the size of the file
 				bytesAvailable = fileInputStream.available();
+				//Get the size of the block to read.
 				bufferSize = Math.min(bytesAvailable, maxBufferSize);
 				buffer = new byte[bufferSize];
 
 				// Read file
-				// bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-				Log.w("huan", "File has been read to a stream");
 				int counter = 0;
 				int count = 0;
 				while ((count = fileInputStream.read(buffer)) != -1) {
 					outputStream.write(buffer, 0, count);
 					counter += count;
 					publishProgress(counter);
-					/*if (uploadListener != null) {
-						uploadListener.onUploadProcess(counter);
-					}*/
 				}
-				/*while (bytesRead > 0) {
-					outputStream.write(buffer, 0, bufferSize);
-					length += bufferSize;
-					progress = (int) ((length * 100) / totalSize);
-					publishProgress(progress);
-
-					bytesAvailable = fileInputStream.available();
-					bufferSize = Math.min(bytesAvailable, maxBufferSize);
-					bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-				}*/
-				Log.w("huan", "Main content of file has uploaded");
 				outputStream.writeBytes(lineEnd);
 				outputStream.writeBytes(twoHyphens + boundary + twoHyphens
 						+ lineEnd);
@@ -138,18 +116,13 @@ public class FileUploader {
 					while ((ch = in.read()) != -1) {
 						sb2.append((char) ch);
 					}
-					Log.w("huan", "Response text: " + sb2.toString());
 				}
 				outputStream.close();
 				fileInputStream.close();
-				Log.w("huan", "Response message: " + con.getResponseMessage());
-				Log.w("huan", "Response message: " + con.getResponseCode());
 
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
 				if (con != null) {
@@ -163,19 +136,16 @@ public class FileUploader {
 
 		@Override
 		protected void onPreExecute() {
-
 			super.onPreExecute();
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
-			//Log.w("huan", "Begin to upload!");
 			super.onPostExecute(result);
 		}
 
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
-			Log.w("huan", progress + "% has been uploaded!");
 			super.onProgressUpdate(progress);
 		}
 

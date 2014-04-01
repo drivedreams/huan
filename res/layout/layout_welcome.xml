@@ -8,10 +8,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Welcome" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+ 
     <Button android:id="@+id/go_to_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
